@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>game prototype</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    </head>
+    <body>
+      
+        <canvas id="myCanvas" style="border:2px solid">
+       
+        <script>
+
+            var canvas = document.getElementById("myCanvas");
+            var context = canvas.getContext("2d");
+
+            canvas.width = 64 * 16 // 1024
+            canvas.height = 64 * 9 // 576
+
+            class Sprite{
+                constructor({position, size, sides, src, scale, frameSize, frameCount, frameAnimation}){
+                    this.position = position;
+                    this.size = size;
+                    this.scale = scale;
+                    this.scaledWidth = this.size.width * scale;
+                    this.scaledHeight = this.size.height * scale;
+                    this.src = src;
+                    this.frameSize = frameSize;
+                    this.frameCount = frameCount;
+                    this.pastFrames = 0;
+                    this.frameRate = 20;
+                    this.frameAnimation = frameAnimation;
+                    this.img = new Image();
+                    this.currentFrame = 0;
+                    
+                    this.img.onload = ()=>{
+                        this.loaded = true;
+                        console.log("loaded");
+                        this.draw();
+                    }
+                    this.img.src = src;
+
+                    this.sides = {
+                        top: this.position.y,
+                        bottom: this.position.y + this.size.height,
+                        left: this.position.x,
+                        right: this.position.x + this.size.width
+                    }
+
+                };
+
+                draw(){
+
+                    context.drawImage(this.img, this.frameAnimation[this.currentFrame] * this.frameSize.width,0, this.frameSize.width, this.frameSize.height, this.position.x, this.position.y, this.scaledWidth, this.scaledHeight);
+
+                    this.pastFrames++;
+                    
+                    if(this.pastFrames % this.frameRate === 0){
+                        if(this.currentFrame < this.frameAnimation.length - 1){
+                            console.log(this.currentFrame);
+                            this.currentFrame++;
+                        }else if(this.currentFrame === this.frameCount ){
+                            this.currentFrame = 0;
+                        }
+                    }
+                }
+            }
+            
+           
+            let playerPosition = {
+                x: 50,
+                y: 300
+            }
+
+            let playerFrameSize = {
+                height: 35,
+                width: 33
+            }
+
+            //TODO: Put in player class
+            let playerSize = {
+                height: 24,
+                width: 16
+            }
+
+            let playerAnimation = [0,2,0,1];
+
+            let playerFrameCount = 3;
+
+            let player = new Sprite({
+                                        position: playerPosition,
+                                        size: playerSize, 
+                                        src: "res/gators sprites.png",
+                                        scale: 10,
+                                        frameSize: playerFrameSize,
+                                        frameCount: playerFrameCount,
+                                        frameAnimation: playerAnimation
+                                    });
+
+            let bg = new Sprite({
+                                    position: {x: 0, y: 0},
+                                    size: {width: 400, height: 200},
+                                    src: "res/football field.png",
+                                    scale: 3,
+                                    frameCount: 5,
+                                    frameSize: {width: 25, height: 200},
+                                    frameAnimation: [0,1,2,3,4,5]
+                                });
+
+            let sprites = [];
+            sprites.push(bg);
+
+            sprites.push(player);
+
+            function animate(){
+                context.clearRect(0,0,canvas.width, canvas.height);
+                requestAnimationFrame(animate);
+                
+                /*THIS DOES NOT WORK
+                 NEED TO CREATE SEPERATE PLAYER CLASS*/
+                sprites.forEach((sprite) => {
+                    sprite.draw();
+                });
+
+                
+            }
+
+            animate();
+            /*
+            TODO:Add player class
+            TODO:Add keys
+            TODO:Add movement
+            */
+        </script>
+
+    </body>
+</html>
